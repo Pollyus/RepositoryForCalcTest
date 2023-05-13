@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            steps {
+                bat 'msbuild.exe MyCalcTests.sln /p:Configuration=Release'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                bat 'packages\\xunit.runner.console.2.4.1\\tools\\xunit.console.exe 
+                MyCalcTests.Tests.dll'
+            }
+        }
+
+        stage("start test") {
+			steps{
+				build job: '/QA/TestJob',
+					parameters: [
+						string(name: 'threadsCount', value: threadsCount),
+						string(name: 'runId', value: runId),
+						string(name: 'testList', value: testList)]
+			}
+    }
+}
+}
